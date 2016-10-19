@@ -1,0 +1,8 @@
+*.opensdf
+*.sdf
+*.suo
+
+/Debug
+/Release
+/RudeEngine/Release
+/RudeEngine/Debug

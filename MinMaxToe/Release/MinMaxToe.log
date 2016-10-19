@@ -1,0 +1,48 @@
+﻿Build started 18/10/2016 9:58:57 PM.
+     1>Project "C:\Users\Rudy\Desktop\MinMaxToe\RudeEngine\MinMaxToe\MinMaxToe.vcxproj" on node 2 (Build target(s)).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (Release\) contains files shared from another project (RudeEngine.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I./include /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Board.cpp Entity.cpp Errors.cpp Application.cpp main.cpp Mesh.cpp MinMaxAI.cpp Objloader.cpp Scene.cpp ShaderProgram.cpp SoundSystem.cpp Text.cpp Texture.cpp Timer.cpp Utilities.cpp
+         Board.cpp
+         Entity.cpp
+         GLM: rotate function taking degrees as a parameter is deprecated. #define GLM_FORCE_RADIANS before including GLM headers to remove this message.
+         Errors.cpp
+         Application.cpp
+         GLM: perspective function taking degrees as a parameter is deprecated. #define GLM_FORCE_RADIANS before including GLM headers to remove this message.
+         main.cpp
+         Mesh.cpp
+         MinMaxAI.cpp
+         Objloader.cpp
+         Scene.cpp
+         ShaderProgram.cpp
+         SoundSystem.cpp
+         Text.cpp
+         Texture.cpp
+         Timer.cpp
+         Utilities.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Rudy\Desktop\MinMaxToe\RudeEngine\Release\MinMaxToe.exe" /NOLOGO /LIBPATH:C:\Users\Rudy\Desktop\MinMaxToe\RudeEngine\MinMaxToe\/lib/ fmod_vc.lib legacy_stdio_definitions.lib freeglut.lib freetype255.lib SOIL_ext.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Rudy\Desktop\MinMaxToe\RudeEngine\Release\MinMaxToe.pdb" /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Rudy\Desktop\MinMaxToe\RudeEngine\Release\MinMaxToe.lib" /MACHINE:X86 /SAFESEH Release\Board.obj
+         Release\Entity.obj
+         Release\Errors.obj
+         Release\Application.obj
+         Release\main.obj
+         Release\Mesh.obj
+         Release\MinMaxAI.obj
+         Release\Objloader.obj
+         Release\Scene.obj
+         Release\ShaderProgram.obj
+         Release\SoundSystem.obj
+         Release\Text.obj
+         Release\Texture.obj
+         Release\Timer.obj
+         Release\Utilities.obj
+     1>LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
+         Generating code
+         All 877 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+         Finished generating code
+         MinMaxToe.vcxproj -> C:\Users\Rudy\Desktop\MinMaxToe\RudeEngine\Release\MinMaxToe.exe
+     1>Done Building Project "C:\Users\Rudy\Desktop\MinMaxToe\RudeEngine\MinMaxToe\MinMaxToe.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:07.03
