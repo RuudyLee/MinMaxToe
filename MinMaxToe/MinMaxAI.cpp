@@ -40,10 +40,10 @@ AIMove MinMaxAI::getBestMove(Board board, TTTVal player) {
 	// Base case
 	TTTVal winner = board.CheckWinner();
 	if (winner == _aiPlayer) {
-		return AIMove(10);
+		return AIMove(1);
 	}
 	else if (winner == _humanPlayer) {
-		return AIMove(-10);
+		return AIMove(-1);
 	}
 	else if (winner == TTTVal::TIE) { 
 		return AIMove(0);

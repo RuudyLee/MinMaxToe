@@ -19,10 +19,27 @@ void Application::Initialize() {
 	glEnable(GL_DEPTH_TEST);
 
 	// Assignment 3 Init
+	char choice;
+	do {
+		std::cout << "Do you want to be X or O? (X/O): ";
+		std::cin >> choice;
+	} while (choice != 'X' && choice != 'x' && choice != 'O' && choice != 'o');
+
+	switch (choice) {
+	case 'X':
+	case 'x':
+		_Player = TTTVal::X;
+		_MMAI.init(TTTVal::O);
+		break;
+	case 'O':
+	case 'o':
+		_Player = TTTVal::O;
+		_MMAI.init(TTTVal::X);
+	}
+
 	_Board = new Board();
 	_Board->Init();
-	_MMAI.init(TTTVal::O);
-
+	
 	// Shader Programs
 	(StaticGeometry = std::shared_ptr<ShaderProgram>(new ShaderProgram()))->Load("./Assets/Shaders/StaticGeometry.vert", "./Assets/Shaders/Phong.frag");
 
@@ -49,6 +66,10 @@ void Application::Initialize() {
 	CameraProjection = glm::perspective(60.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 1.0f, 10000.0f);
 }
 
+void Application::GetMove() {
+
+}
+
 void Application::Update() {
 	// update our clock so we have the delta time since the last update
 	updateTimer->tick();
@@ -56,18 +77,36 @@ void Application::Update() {
 	float deltaTime = updateTimer->getElapsedTimeSeconds();
 	TotalGameTime += deltaTime;
 
-	int x;
-	int y;
-	do {
-		std::cout << "Enter your x: ";
-		std::cin >> x;
-		std::cout << "Enter your y: ";
-		std::cin >> y;
-	} while (_Board->GetValue(x, y) != TTTVal::NIL);
+	if (_Player == TTTVal::X) {
+		_Board->PrintBoard();
 
-	_Board->SetValue(x, y, TTTVal::X);
-	_MMAI.performMove(_Board);
-	_Board->PrintBoard();
+		int x;
+		int y;
+		do {
+			std::cout << "Enter your x: ";
+			std::cin >> x;
+			std::cout << "Enter your y: ";
+			std::cin >> y;
+		} while (_Board->GetValue(x, y) != TTTVal::NIL);
+
+		_Board->SetValue(x, y, _Player);
+		_MMAI.performMove(_Board);
+	}
+	else {
+		_MMAI.performMove(_Board);
+		_Board->PrintBoard();
+
+		int x;
+		int y;
+		do {
+			std::cout << "Enter your x: ";
+			std::cin >> x;
+			std::cout << "Enter your y: ";
+			std::cin >> y;
+		} while (_Board->GetValue(x, y) != TTTVal::NIL);
+
+		_Board->SetValue(x, y, _Player);
+	}
 
 	if (CursorOn) {
 		glutSetCursor(GLUT_CURSOR_INHERIT);

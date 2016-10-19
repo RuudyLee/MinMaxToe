@@ -35,6 +35,8 @@ public:
 	void Draw();
 	void renderText();
 
+	void GetMove();
+
 	/* input callback functions */
 	void keyboardDown(unsigned char key, int mouseX, int mouseY);
 	void keyboardUp(unsigned char key, int mouseX, int mouseY);
@@ -58,6 +60,7 @@ public:
 	// Assignment 3
 	Board *_Board;
 	MinMaxAI _MMAI;
+	TTTVal _Player;
 
 	// states
 	bool WireframeOn = false;
