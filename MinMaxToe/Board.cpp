@@ -2,13 +2,22 @@
 #include <iostream>
 
 
-Board::Board()
-{
+Board::Board() {
 }
 
 
-Board::~Board()
-{
+Board::~Board() {
+}
+
+/*
+* Initializes all the board values to TTTVal::NIL
+*/
+void Board::Init() {
+	for (int y = 0; y < 3; y++) {
+		for (int x = 0; x < 3; x++) {
+			_Board[x][y] = TTTVal::NIL;
+		}
+	}
 }
 
 /*
@@ -22,7 +31,7 @@ TTTVal Board::GetValue(int x, int y) {
 * Sets the value to given 'val' at (x,y)
 */
 void Board::SetValue(int x, int y, TTTVal val) {
-	_Board[x][y] = val;
+		_Board[x][y] = val;
 }
 
 /*
@@ -48,6 +57,12 @@ TTTVal Board::CheckWinner() {
 		return _Board[2][0];
 	}
 
+	// Return TTTVal::TIE if the board is full
+	if (FullBoard()) {
+		return TTTVal::TIE;
+	}
+
+	// Otherwise, there has been no winner
 	return TTTVal::NIL;
 }
 
@@ -67,9 +82,10 @@ bool Board::FullBoard() {
 
 void Board::PrintBoard() {
 	system("cls");
+	std::cout << "   0 1 2\n";
 	for (int y = 0; y < 3; y++) {
+		std::cout << y << ": ";
 		for (int x = 0; x < 3; x++) {
-			std::cout << " ";
 			switch (_Board[x][y]) {
 			case TTTVal::X:
 				std::cout << "X";
@@ -78,10 +94,13 @@ void Board::PrintBoard() {
 				std::cout << "O";
 				break;
 			case TTTVal::NIL:
-				std::cout << " ";
+				std::cout << ".";
 				break;
+			case TTTVal::TIE:
+				std::cout << "?";
 			}
-			std::cout << std::endl;
+			std::cout << " ";
 		}
+		std::cout << std::endl;
 	}
 }

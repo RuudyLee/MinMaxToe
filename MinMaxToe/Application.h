@@ -8,6 +8,8 @@
 #include "Entity.h"
 #include "Scene.h"
 #include "SoundSystem.h"
+#include "Board.h"
+#include "MinMaxAI.h"
 
 #include <glm\glm.hpp>
 
@@ -46,18 +48,16 @@ public:
 
 	std::shared_ptr<ShaderProgram> StaticGeometry;
 
-	std::shared_ptr<Mesh> DoorMesh;
 	std::shared_ptr<Mesh> GroundMesh;
-	std::shared_ptr<Texture> DoorTexture;
 	std::shared_ptr<Texture> GroundTexture;
-
-	Entity Door;
 	Entity Ground;
-
 	Scene BasicScene;
-
 	glm::mat4 CameraTransform;
 	glm::mat4 CameraProjection;
+
+	// Assignment 3
+	Board *_Board;
+	MinMaxAI _MMAI;
 
 	// states
 	bool WireframeOn = false;

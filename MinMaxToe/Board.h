@@ -8,13 +8,16 @@ public:
 	Board();
 	~Board();
 
+	void Init();
 	TTTVal GetValue(int x, int y);
 	void SetValue(int x, int y, TTTVal val);
 	TTTVal CheckWinner();
-	bool FullBoard();
 
 	// temporary
 	void PrintBoard();
+
+private:
+	bool FullBoard();
 
 private:
 	TTTVal _Board[3][3];

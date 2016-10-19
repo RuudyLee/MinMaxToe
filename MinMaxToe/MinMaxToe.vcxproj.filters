@@ -40,8 +40,12 @@
     <ClCompile Include="SoundSystem.cpp">
       <Filter>Engine\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MinMaxAI.cpp" />
-    <ClCompile Include="Board.cpp" />
+    <ClCompile Include="Board.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MinMaxAI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -80,8 +84,12 @@
     <ClInclude Include="SoundSystem.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MinMaxAI.h" />
-    <ClInclude Include="Board.h" />
+    <ClInclude Include="MinMaxAI.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Board.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\Text\Text.vert">

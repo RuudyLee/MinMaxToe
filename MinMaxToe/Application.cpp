@@ -18,31 +18,33 @@ void Application::Initialize() {
 	TextDisplay.Init();
 	glEnable(GL_DEPTH_TEST);
 
+	// Assignment 3 Init
+	_Board = new Board();
+	_Board->Init();
+	_MMAI.init(TTTVal::O);
+
 	// Shader Programs
 	(StaticGeometry = std::shared_ptr<ShaderProgram>(new ShaderProgram()))->Load("./Assets/Shaders/StaticGeometry.vert", "./Assets/Shaders/Phong.frag");
-	
+
 	// Meshes
-	(DoorMesh = std::shared_ptr<Mesh>(new Mesh()))->LoadFromFile("./Assets/Models/Door.obj");
 	(GroundMesh = std::shared_ptr<Mesh>(new Mesh()))->LoadFromFile("./Assets/Models/Ground.obj");
 
 	// Textures
-	(DoorTexture = std::shared_ptr<Texture>(new Texture()))->Load("./Assets/Textures/Door.tga");
 	(GroundTexture = std::shared_ptr<Texture>(new Texture()))->Load("./Assets/Textures/Ground.png");
 
 	// Entities
-	Door.Init(DoorMesh, DoorTexture);
-	Door.Scale(0.01f);
 	Ground.Init(GroundMesh, GroundTexture);
 
 	// Scenes
 	BasicScene.Init(StaticGeometry);
-	BasicScene.AddGameObject(Door);
 	BasicScene.AddGameObject(Ground);
 
 	// Sounds
 	Sound.init();
 	Sound.createSound("./Assets/Sounds/drumloop.wav", 0, glm::vec3(0.0f, 0.0f, 0.0f));
 	Sound.createSound("./Assets/Sounds/jaguar.wav", 1, glm::vec3(0.0f, 0.0f, 10.0f));
+
+	// Assignment 3
 
 	CameraProjection = glm::perspective(60.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 1.0f, 10000.0f);
 }
@@ -53,6 +55,19 @@ void Application::Update() {
 
 	float deltaTime = updateTimer->getElapsedTimeSeconds();
 	TotalGameTime += deltaTime;
+
+	int x;
+	int y;
+	do {
+		std::cout << "Enter your x: ";
+		std::cin >> x;
+		std::cout << "Enter your y: ";
+		std::cin >> y;
+	} while (_Board->GetValue(x, y) != TTTVal::NIL);
+
+	_Board->SetValue(x, y, TTTVal::X);
+	_MMAI.performMove(_Board);
+	_Board->PrintBoard();
 
 	if (CursorOn) {
 		glutSetCursor(GLUT_CURSOR_INHERIT);
@@ -98,7 +113,7 @@ void Application::Update() {
 	}
 
 	BasicScene.Update(deltaTime);
-	
+
 	Sound.update();
 }
 
@@ -186,7 +201,6 @@ void Application::keyboardDown(unsigned char key, int mouseX, int mouseY) {
 		CursorOn = !CursorOn;
 		break;
 	case '3':
-		BasicScene.RemoveGameObject(Door);
 		break;
 	case '4':
 		break;
@@ -233,8 +247,8 @@ void Application::keyboardUp(unsigned char key, int mouseX, int mouseY) {
 }
 
 void Application::mouseClicked(int button, int state, int x, int y) {
-	if (state == GLUT_DOWN)	{
-		switch (button)	{
+	if (state == GLUT_DOWN) {
+		switch (button) {
 		case GLUT_LEFT_BUTTON:
 
 			break;

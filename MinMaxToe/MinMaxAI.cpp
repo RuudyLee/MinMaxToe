@@ -2,15 +2,19 @@
 #include <vector>
 
 
-MinMaxAI::MinMaxAI()
-{
+MinMaxAI::MinMaxAI() {
 }
 
-
-MinMaxAI::~MinMaxAI()
-{
+MinMaxAI::MinMaxAI(TTTVal aiPlayer) {
+	init(aiPlayer);
 }
 
+MinMaxAI::~MinMaxAI() {
+}
+
+/*
+* Initializes AI
+*/
 void MinMaxAI::init(TTTVal aiPlayer) {
 	_aiPlayer = aiPlayer;
 	if (_aiPlayer == TTTVal::X) {
@@ -21,16 +25,19 @@ void MinMaxAI::init(TTTVal aiPlayer) {
 	}
 }
 
-void MinMaxAI::performMove(Board board) {
-	AIMove bestMove = getBestMove(board, _aiPlayer);
-	board.SetValue(bestMove.x, bestMove.y, _aiPlayer);
+/*
+* Plays the best move to the given board using the MinMax algorithm
+*/
+void MinMaxAI::performMove(Board *board) {
+	AIMove bestMove = getBestMove(*board, _aiPlayer);
+	board->SetValue(bestMove.x, bestMove.y, _aiPlayer);
 }
 
 /*
 * My Implementation of the MinMax Algorithm
 */
 AIMove MinMaxAI::getBestMove(Board board, TTTVal player) {
-	// base case
+	// Base case
 	TTTVal winner = board.CheckWinner();
 	if (winner == _aiPlayer) {
 		return AIMove(10);
@@ -65,7 +72,7 @@ AIMove MinMaxAI::getBestMove(Board board, TTTVal player) {
 	}
 
 	// Determine best move
-	AIMove bestMove = 0;
+	AIMove bestMove;
 	if (player == _aiPlayer) {
 		// wants +10
 		int bestScore = -99999;

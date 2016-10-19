@@ -16,10 +16,11 @@ class MinMaxAI
 {
 public:
 	MinMaxAI();
+	MinMaxAI(TTTVal aiPlayer);
 	~MinMaxAI();
 	
 	void init(TTTVal aiPlayer);
-	void performMove(Board board);
+	void performMove(Board *board);
 
 private:
 	AIMove getBestMove(Board board, TTTVal player);
