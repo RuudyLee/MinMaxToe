@@ -18,7 +18,32 @@ void Application::Initialize() {
 	TextDisplay.Init();
 	glEnable(GL_DEPTH_TEST);
 
-	// Assignment 3 Init
+	// Shader Programs
+	(StaticGeometry = std::shared_ptr<ShaderProgram>(new ShaderProgram()))->Load("./Assets/Shaders/StaticGeometry.vert", "./Assets/Shaders/Phong.frag");
+
+	// Meshes
+	(BoardMesh = std::shared_ptr<Mesh>(new Mesh()))->LoadFromFile("./Assets/Models/Board.obj");
+	(XMesh = std::shared_ptr<Mesh>(new Mesh()))->LoadFromFile("./Assets/Models/X.obj");
+	(OMesh = std::shared_ptr<Mesh>(new Mesh()))->LoadFromFile("./Assets/Models/O.obj");
+
+	// Textures
+	(BoardTexture = std::shared_ptr<Texture>(new Texture()))->Load("./Assets/Textures/Ground.png");
+	(BlueTexture = std::shared_ptr<Texture>(new Texture()))->Load("./Assets/Textures/Blue.png");
+	(RedTexture = std::shared_ptr<Texture>(new Texture()))->Load("./Assets/Textures/Red.png");
+
+	// Entities
+	BoardEntity = new Entity();
+	BoardEntity->Init(BoardMesh, BoardTexture);
+	XEntity = new Entity();
+	XEntity->Init(XMesh, RedTexture);
+	OEntity = new Entity();
+	OEntity->Init(OMesh, BlueTexture);
+
+	// Assignment 3 Init 
+	_Board = new Board();
+	_Board->Init();
+
+	// Choose side
 	char choice;
 	do {
 		std::cout << "Do you want to be X or O? (X/O): ";
@@ -35,125 +60,40 @@ void Application::Initialize() {
 	case 'o':
 		_Player = TTTVal::O;
 		_MMAI.init(TTTVal::X);
+		_MMAI.performMove(_Board);
 	}
 
-	_Board = new Board();
-	_Board->Init();
-	
-	// Shader Programs
-	(StaticGeometry = std::shared_ptr<ShaderProgram>(new ShaderProgram()))->Load("./Assets/Shaders/StaticGeometry.vert", "./Assets/Shaders/Phong.frag");
-
-	// Meshes
-	(GroundMesh = std::shared_ptr<Mesh>(new Mesh()))->LoadFromFile("./Assets/Models/Ground.obj");
-
-	// Textures
-	(GroundTexture = std::shared_ptr<Texture>(new Texture()))->Load("./Assets/Textures/Ground.png");
-
-	// Entities
-	Ground.Init(GroundMesh, GroundTexture);
-
-	// Scenes
-	BasicScene.Init(StaticGeometry);
-	BasicScene.AddGameObject(Ground);
-
-	// Sounds
-	Sound.init();
-	Sound.createSound("./Assets/Sounds/drumloop.wav", 0, glm::vec3(0.0f, 0.0f, 0.0f));
-	Sound.createSound("./Assets/Sounds/jaguar.wav", 1, glm::vec3(0.0f, 0.0f, 10.0f));
-
-	// Assignment 3
-
+	_PlayerTurn = true;
+	_Board->PrintBoard();
 	CameraProjection = glm::perspective(60.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 1.0f, 10000.0f);
-}
-
-void Application::GetMove() {
-
+	CameraTransform = glm::lookAt(glm::vec3(0.0f, 10.0f, 1.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Application::Update() {
 	// update our clock so we have the delta time since the last update
 	updateTimer->tick();
 
+	// AI's turn
+	if (!_PlayerTurn) {
+		if (_Board->GameOver()) {
+			std::cout << "GG";
+			exit(0);
+		}
+		_MMAI.performMove(_Board);
+		
+		if (_Board->GameOver()) {
+			std::cout << "GG";
+			exit(0);
+		}
+
+		// it is now the player's turn
+		_PlayerTurn = true;
+	}
+
 	float deltaTime = updateTimer->getElapsedTimeSeconds();
 	TotalGameTime += deltaTime;
-
-	if (_Player == TTTVal::X) {
-		_Board->PrintBoard();
-
-		int x;
-		int y;
-		do {
-			std::cout << "Enter your x: ";
-			std::cin >> x;
-			std::cout << "Enter your y: ";
-			std::cin >> y;
-		} while (_Board->GetValue(x, y) != TTTVal::NIL);
-
-		_Board->SetValue(x, y, _Player);
-		_MMAI.performMove(_Board);
-	}
-	else {
-		_MMAI.performMove(_Board);
-		_Board->PrintBoard();
-
-		int x;
-		int y;
-		do {
-			std::cout << "Enter your x: ";
-			std::cin >> x;
-			std::cout << "Enter your y: ";
-			std::cin >> y;
-		} while (_Board->GetValue(x, y) != TTTVal::NIL);
-
-		_Board->SetValue(x, y, _Player);
-	}
-
-	if (CursorOn) {
-		glutSetCursor(GLUT_CURSOR_INHERIT);
-	}
-	else {
-		glutSetCursor(GLUT_CURSOR_NONE);
-		glutWarpPointer(WINDOW_WIDTH_MID, WINDOW_HEIGHT_MID);
-
-		/* FPS Control */
-		horizontalAngle += MOUSE_SPEED * float(WINDOW_WIDTH_MID - xpos);
-		verticalAngle += MOUSE_SPEED * float(WINDOW_HEIGHT_MID - ypos);
-
-		glm::vec3 direction(
-			cos(verticalAngle) * sin(horizontalAngle),
-			sin(verticalAngle),
-			cos(verticalAngle) * cos(horizontalAngle)
-			);
-
-		glm::vec3 right = glm::vec3(
-			sin(horizontalAngle - 3.14f / 2.0f),
-			0,
-			cos(horizontalAngle - 3.14f / 2.0f)
-			);
-
-		glm::vec3 up = glm::cross(right, direction);
-
-		if (KeyWDown) {
-			position += glm::vec3(direction.x, 0.0f, direction.z) * deltaTime * MOVEMENT_SPEED;
-		}
-		if (KeySDown) {
-			position -= glm::vec3(direction.x, 0.0f, direction.z) * deltaTime * MOVEMENT_SPEED;
-		}
-		if (KeyDDown) {
-			position += right * deltaTime * MOVEMENT_SPEED;
-		}
-		if (KeyADown) {
-			position -= right * deltaTime * MOVEMENT_SPEED;
-		}
-
-		std::cout << "Pos: " << position.x << ", " << position.y << ", " << position.z << std::endl;
-		CameraTransform = glm::lookAt(position, position + direction, up);
-		Sound.setListener(position, direction, up);
-	}
-
-	BasicScene.Update(deltaTime);
-
-	Sound.update();
 }
 
 void Application::Draw() {
@@ -186,14 +126,37 @@ void Application::Draw() {
 	StaticGeometry->SendUniform("LightAttenuationQuadratic", 0.01f);
 	StaticGeometry->SendUniform("LightSpecularExponent", 50.0f);
 
-	BasicScene.Draw();
+	// Render the board state
+	StaticGeometry->SendUniformMat4("uModel", &BoardEntity->GetTransform()[0][0], false);
+	BoardEntity->Draw();
+
+	for (int y = 0; y < 3; y++) {
+		for (int x = 0; x < 3; x++) {
+			TTTVal value = _Board->GetValue(x, y);
+
+			switch (value) {
+			case TTTVal::X:
+				XEntity->Translate(3.0f * (x - 1), 0.0f, 3.0f * (y - 1));
+				StaticGeometry->SendUniformMat4("uModel", &XEntity->GetTransform()[0][0], false);
+				XEntity->Draw();
+				XEntity->Translate(-3.0f * (x - 1), 0.0f, -3.0f * (y - 1));
+				break;
+
+			case TTTVal::O:
+				OEntity->Translate(3.0f * (x - 1), 0.0f, 3.0f * (y - 1));
+				StaticGeometry->SendUniformMat4("uModel", &OEntity->GetTransform()[0][0], false);
+				OEntity->Draw();
+				OEntity->Translate(-3.0f * (x - 1), 0.0f, -3.0f * (y - 1));
+				break;
+			}
+		}
+	}
 
 	StaticGeometry->Unbind();
 
 	renderText();
 
 	glutSwapBuffers();
-
 }
 
 void Application::renderText()
@@ -270,6 +233,8 @@ void Application::keyboardUp(unsigned char key, int mouseX, int mouseY) {
 	case 'q': // the 'q' key
 		exit(1);
 		break;
+	case '2':
+		std::cout << _PlayerTurn << std::endl;
 	case 'w':
 		KeyWDown = false;
 		break;
@@ -289,7 +254,89 @@ void Application::mouseClicked(int button, int state, int x, int y) {
 	if (state == GLUT_DOWN) {
 		switch (button) {
 		case GLUT_LEFT_BUTTON:
-
+			if (_PlayerTurn) {
+				// left column
+				if (xpos > 150 && xpos < 320) {
+					// top row
+					if (ypos > 72 && ypos < 215) {
+						if (_Board->GetValue(0, 0) == TTTVal::NIL) {
+							_Board->SetValue(0, 0, _Player);
+							// it is now the AI's turn
+							_PlayerTurn = false;
+						}
+					}
+					// middle row
+					else if (ypos > 215 && ypos < 375) {
+						if (_Board->GetValue(0, 1) == TTTVal::NIL) {
+							_Board->SetValue(0, 1, _Player);
+							// it is now the AI's turn
+							_PlayerTurn = false;
+						}
+					}
+					// bottom row
+					else if (ypos > 375 && ypos < 550) {
+						if (_Board->GetValue(0, 2) == TTTVal::NIL) {
+							_Board->SetValue(0, 2, _Player);
+							// it is now the AI's turn
+							_PlayerTurn = false;
+						}
+					}
+				}
+				// middle column
+				else if (xpos > 320 && xpos < 480) {
+					// top row
+					if (ypos > 72 && ypos < 215) {
+						if (_Board->GetValue(1, 0) == TTTVal::NIL) {
+							_Board->SetValue(1, 0, _Player);
+							// it is now the AI's turn
+							_PlayerTurn = false;
+						}
+					}
+					// middle row
+					else if (ypos > 215 && ypos < 375) {
+						if (_Board->GetValue(1, 1) == TTTVal::NIL) {
+							_Board->SetValue(1, 1, _Player);
+							// it is now the AI's turn
+							_PlayerTurn = false;
+						}
+					}
+					// bottom row
+					else if (ypos > 375 && ypos < 550) {
+						if (_Board->GetValue(1, 2) == TTTVal::NIL) {
+							_Board->SetValue(1, 2, _Player);
+							// it is now the AI's turn
+							_PlayerTurn = false;
+						}
+					}
+				}
+				// right column
+				else if (xpos > 480 && xpos < 630) {
+					// top row
+					if (ypos > 72 && ypos < 215) {
+						if (_Board->GetValue(2, 0) == TTTVal::NIL) {
+							_Board->SetValue(2, 0, _Player);
+							// it is now the AI's turn
+							_PlayerTurn = false;
+						}
+					}
+					// middle row
+					else if (ypos > 215 && ypos < 375) {
+						if (_Board->GetValue(2, 1) == TTTVal::NIL) {
+							_Board->SetValue(2, 1, _Player);
+							// it is now the AI's turn
+							_PlayerTurn = false;
+						}
+					}
+					// bottom row
+					else if (ypos > 375 && ypos < 550) {
+						if (_Board->GetValue(2, 2) == TTTVal::NIL) {
+							_Board->SetValue(2, 2, _Player);
+							// it is now the AI's turn
+							_PlayerTurn = false;
+						}
+					}
+				}
+			}
 			break;
 		case GLUT_RIGHT_BUTTON:
 

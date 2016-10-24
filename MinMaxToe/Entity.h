@@ -17,6 +17,7 @@ public:
 	void Draw();
 
 	void Translate(glm::vec3 _vec);
+	void Translate(float x, float y, float z);
 	void Rotate(float _rot, glm::vec3 _axis);
 	void Scale(float _fac);
 	void Scale(glm::vec3 _fac);

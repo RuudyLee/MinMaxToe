@@ -66,6 +66,10 @@ TTTVal Board::CheckWinner() {
 	return TTTVal::NIL;
 }
 
+bool Board::GameOver() {
+	return CheckWinner() != TTTVal::NIL;
+}
+
 /*
 * Checks if the board is full
 */

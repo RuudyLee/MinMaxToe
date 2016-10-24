@@ -14,11 +14,11 @@ public:
 	void Draw();
 	void Update(float deltaTime);
 
-	void AddGameObject(Entity _gameObject);
-	void RemoveGameObject(Entity _gameObject);
+	void AddGameObject(Entity *_gameObject);
+	void RemoveGameObject(Entity *_gameObject);
 
 private:
 	std::shared_ptr<ShaderProgram> _ShaderProgram;
-	std::vector<Entity> _GameObjects;
+	std::vector<Entity*> _GameObjects;
 };
 

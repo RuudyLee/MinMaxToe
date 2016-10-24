@@ -12,6 +12,7 @@ public:
 	TTTVal GetValue(int x, int y);
 	void SetValue(int x, int y, TTTVal val);
 	TTTVal CheckWinner();
+	bool GameOver();
 
 	// temporary
 	void PrintBoard();

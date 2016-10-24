@@ -35,8 +35,6 @@ public:
 	void Draw();
 	void renderText();
 
-	void GetMove();
-
 	/* input callback functions */
 	void keyboardDown(unsigned char key, int mouseX, int mouseY);
 	void keyboardUp(unsigned char key, int mouseX, int mouseY);
@@ -50,10 +48,15 @@ public:
 
 	std::shared_ptr<ShaderProgram> StaticGeometry;
 
-	std::shared_ptr<Mesh> GroundMesh;
-	std::shared_ptr<Texture> GroundTexture;
-	Entity Ground;
-	Scene BasicScene;
+	std::shared_ptr<Mesh> BoardMesh;
+	std::shared_ptr<Mesh> XMesh;
+	std::shared_ptr<Mesh> OMesh;
+	std::shared_ptr<Texture> BoardTexture;
+	std::shared_ptr<Texture> RedTexture;
+	std::shared_ptr<Texture> BlueTexture;
+	Entity *BoardEntity;
+	Entity *XEntity;
+	Entity *OEntity;
 	glm::mat4 CameraTransform;
 	glm::mat4 CameraProjection;
 
@@ -61,6 +64,7 @@ public:
 	Board *_Board;
 	MinMaxAI _MMAI;
 	TTTVal _Player;
+	bool _PlayerTurn;
 
 	// states
 	bool WireframeOn = false;
@@ -68,8 +72,7 @@ public:
 	bool TextDisplayOn = false;
 
 	Text TextDisplay;
-	SoundSystem Sound;
-
+	bool oneTime = false;
 	/* For FPS Control */
 	bool KeyWDown = false;
 	bool KeyADown = false;

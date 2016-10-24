@@ -1,6 +1,7 @@
 #include "MinMaxAI.h"
 #include <vector>
-
+#include <algorithm>
+#include <iostream>
 
 MinMaxAI::MinMaxAI() {
 }
@@ -29,68 +30,79 @@ void MinMaxAI::init(TTTVal aiPlayer) {
 * Plays the best move to the given board using the MinMax algorithm
 */
 void MinMaxAI::performMove(Board *board) {
-	AIMove bestMove = getBestMove(*board, _aiPlayer);
+	evaluations = 0;
+	MoveNode bestMove = getBestMove(*board, -99999, 99999, _aiPlayer);
 	board->SetValue(bestMove.x, bestMove.y, _aiPlayer);
+	
 }
 
 /*
-* My Implementation of the MinMax Algorithm
-*/
-AIMove MinMaxAI::getBestMove(Board board, TTTVal player) {
-	// Base case
+* My Implementation of the MinMax Algorithm with alpha-beta pruning
+*/ 
+MoveNode MinMaxAI::getBestMove(Board board, int alpha, int beta, TTTVal player) {
+	evaluations++;
+	// Terminal nodes
 	TTTVal winner = board.CheckWinner();
 	if (winner == _aiPlayer) {
-		return AIMove(1);
+		return MoveNode(1);
 	}
 	else if (winner == _humanPlayer) {
-		return AIMove(-1);
+		return MoveNode(-1);
 	}
 	else if (winner == TTTVal::TIE) { 
-		return AIMove(0);
+		return MoveNode(0);
 	}
 
-	std::vector<AIMove> moves;
+	std::vector<MoveNode> children;
 
 	// MinMax Recursion
 	for (int y = 0; y < 3; y++) {
 		for (int x = 0; x < 3; x++) {
 			if (board.GetValue(x, y) == TTTVal::NIL) {
-				AIMove move;
-				move.x = x;
-				move.y = y;
+				MoveNode move;
+				move.setMove(x, y);
 				board.SetValue(x, y, player);
-				if (player == _aiPlayer) {
-					move.score = getBestMove(board, _humanPlayer).score;
+				
+				if (player == _aiPlayer) { // Maximizing player
+					move.score = getBestMove(board, alpha, beta, _humanPlayer).score;
+					alpha = std::max(alpha, move.score);
+					// check for beta cut-off
+					if (beta <= alpha) {
+						return MoveNode(beta);
+					}
 				}
-				else {
-					move.score = getBestMove(board, _aiPlayer).score;
+				else { // Minimizing player
+					move.score = getBestMove(board, alpha, beta, _aiPlayer).score;
+					beta = std::min(beta, move.score);
+					// check for alpha cut-off
+					if (beta <= alpha) {
+						return MoveNode(alpha);
+					}
 				}
-				moves.push_back(move);
+				children.push_back(move);
 				board.SetValue(x, y, TTTVal::NIL);
 			}
 		}
 	}
 
 	// Determine best move
-	AIMove bestMove;
+	MoveNode bestMove;
 	if (player == _aiPlayer) {
-		// wants +10
-		int bestScore = -99999;
-		for (AIMove move : moves) {
-			if (move.score > bestScore) {
+		// wants highest score
+		bestMove.score = -99999;
+		for (MoveNode move : children) {
+			if (move.score > bestMove.score) {
 				bestMove = move;
-				bestScore = move.score;
 			}
 		}
 	}
 	else
 	{
-		// wants -10
-		int bestScore = 99999;
-		for (AIMove move : moves) {
-			if (move.score < bestScore) {
+		// wants lowest score
+		bestMove.score = 99999;
+		for (MoveNode move : children) {
+			if (move.score < bestMove.score) {
 				bestMove = move;
-				bestScore = move.score;
 			}
 		}
 	}

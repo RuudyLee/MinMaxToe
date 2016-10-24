@@ -1,14 +1,20 @@
 #pragma once
 #include "Board.h"
+#include <vector>
 
-struct AIMove {
+struct MoveNode {
 	int x;
 	int y;
 	int score;
 
-	AIMove() {}
-	AIMove(int sc) {
+	MoveNode() {}
+	MoveNode(int sc) {
 		score = sc;
+	}
+
+	void setMove(int _x, int _y) {
+		x = _x;
+		y = _y;
 	}
 };
 
@@ -21,9 +27,10 @@ public:
 	
 	void init(TTTVal aiPlayer);
 	void performMove(Board *board);
-
+	
+	int evaluations = 0;
 private:
-	AIMove getBestMove(Board board, TTTVal player);
+	MoveNode getBestMove(Board board, int min, int max, TTTVal player);
 
 	TTTVal _humanPlayer;
 	TTTVal _aiPlayer;

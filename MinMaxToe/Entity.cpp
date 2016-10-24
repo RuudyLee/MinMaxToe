@@ -33,6 +33,10 @@ void Entity::Translate(glm::vec3 _vec) {
 	_Transform = glm::translate(_Transform, _vec);
 }
 
+void Entity::Translate(float x, float y, float z) {
+	_Transform = glm::translate(_Transform, glm::vec3(x, y, z));
+}
+
 void Entity::Rotate(float _rot, glm::vec3 _axis) {
 	_Transform = glm::rotate(_Transform, _rot, _axis);
 }
