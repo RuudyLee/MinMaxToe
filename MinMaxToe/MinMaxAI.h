@@ -1,7 +1,12 @@
+/* Create by: Rudy Lee */
+
 #pragma once
 #include "Board.h"
 #include <vector>
 
+/*
+* Encapsulates nodes for the MinMax Tree
+*/
 struct MoveNode {
 	int x;
 	int y;
@@ -18,6 +23,10 @@ struct MoveNode {
 	}
 };
 
+/*
+* An AI program for Tic-Tac-Toe
+* Uses the Alpha-Beta Pruning search algorithm
+*/
 class MinMaxAI
 {
 public:
@@ -27,10 +36,12 @@ public:
 	
 	void init(TTTVal aiPlayer);
 	void performMove(Board *board);
-	
+	void toggleAlphaBeta();
+
 	int evaluations = 0;
 private:
 	MoveNode getBestMove(Board board, int min, int max, TTTVal player);
+	bool enableAlphaBeta = true;
 
 	TTTVal _humanPlayer;
 	TTTVal _aiPlayer;

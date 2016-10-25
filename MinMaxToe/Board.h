@@ -1,7 +1,13 @@
+/* Create by: Rudy Lee */
+
 #pragma once
 
+// Values for board state
 enum class TTTVal { NIL = 0, TIE, X, O };
 
+/*
+* Encapsulates the board states into a 3x3 matrix (a tic-tac-toe board)
+*/
 class Board
 {
 public:
@@ -13,9 +19,6 @@ public:
 	void SetValue(int x, int y, TTTVal val);
 	TTTVal CheckWinner();
 	bool GameOver();
-
-	// temporary
-	void PrintBoard();
 
 private:
 	bool FullBoard();

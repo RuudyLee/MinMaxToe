@@ -1,3 +1,5 @@
+/* Created by: Rudy Lee */
+
 #include <windows.h>
 #include <iostream>
 #include <memory>
@@ -49,6 +51,9 @@ void TimerCallbackFunction(int value) {
 	glutTimerFunc(FRAME_DELAY_SPRITE, TimerCallbackFunction, 0);
 }
 
+/*
+*   - this is called when the mouse is clicked
+*/
 void MouseClickCallbackFunction(int button, int state, int x, int y) {
 	theGame->mouseClicked(button, state, x, y);
 	glutPostRedisplay();

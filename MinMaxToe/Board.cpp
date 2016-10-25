@@ -1,3 +1,5 @@
+/* Create by: Rudy Lee */
+
 #include "Board.h"
 #include <iostream>
 
@@ -41,19 +43,30 @@ void Board::SetValue(int x, int y, TTTVal val) {
 TTTVal Board::CheckWinner() {
 	// check rows & columns
 	for (int i = 0; i < 3; i++) {
-		if (_Board[0][i] == _Board[1][i] && _Board[0][i] == _Board[2][i]) {
+		// check rows
+		if (_Board[0][i] != TTTVal::NIL && 
+			_Board[0][i] == _Board[1][i] && 
+			_Board[0][i] == _Board[2][i]) {
 			return _Board[0][i];
 		}
-		if (_Board[i][0] == _Board[i][1] && _Board[i][0] == _Board[i][2]) {
+
+		// check columns
+		if (_Board[i][0] != TTTVal::NIL &&
+			_Board[i][0] == _Board[i][1] && 
+			_Board[i][0] == _Board[i][2]) {
 			return _Board[i][0];
 		}
 	}
 
 	// check diagonals
-	if (_Board[0][0] == _Board[1][1] && _Board[0][0] == _Board[2][2]) {
+	if (_Board[0][0] != TTTVal::NIL &&
+		_Board[0][0] == _Board[1][1] && 
+		_Board[0][0] == _Board[2][2]) {
 		return _Board[0][0];
 	}
-	if (_Board[2][0] == _Board[1][1] && _Board[2][0] == _Board[0][2]) {
+	if (_Board[2][0] != TTTVal::NIL &&
+		_Board[2][0] == _Board[1][1] && 
+		_Board[2][0] == _Board[0][2]) {
 		return _Board[2][0];
 	}
 
@@ -82,29 +95,4 @@ bool Board::FullBoard() {
 		}
 	}
 	return true;
-}
-
-void Board::PrintBoard() {
-	system("cls");
-	std::cout << "   0 1 2\n";
-	for (int y = 0; y < 3; y++) {
-		std::cout << y << ": ";
-		for (int x = 0; x < 3; x++) {
-			switch (_Board[x][y]) {
-			case TTTVal::X:
-				std::cout << "X";
-				break;
-			case TTTVal::O:
-				std::cout << "O";
-				break;
-			case TTTVal::NIL:
-				std::cout << ".";
-				break;
-			case TTTVal::TIE:
-				std::cout << "?";
-			}
-			std::cout << " ";
-		}
-		std::cout << std::endl;
-	}
 }

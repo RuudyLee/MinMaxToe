@@ -39,7 +39,16 @@ void Application::Initialize() {
 	OEntity = new Entity();
 	OEntity->Init(OMesh, BlueTexture);
 
-	// Assignment 3 Init 
+	// Initialize a game of tic-tac-toe
+	InitializeTicTacToe();
+
+	CameraProjection = glm::perspective(60.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 1.0f, 10000.0f);
+	CameraTransform = glm::lookAt(glm::vec3(0.0f, 10.0f, 1.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void Application::InitializeTicTacToe() {
 	_Board = new Board();
 	_Board->Init();
 
@@ -55,20 +64,15 @@ void Application::Initialize() {
 	case 'x':
 		_Player = TTTVal::X;
 		_MMAI.init(TTTVal::O);
+		_PlayerTurn = true;
 		break;
 	case 'O':
 	case 'o':
 		_Player = TTTVal::O;
 		_MMAI.init(TTTVal::X);
-		_MMAI.performMove(_Board);
+		_PlayerTurn = false;
+		break;
 	}
-
-	_PlayerTurn = true;
-	_Board->PrintBoard();
-	CameraProjection = glm::perspective(60.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 1.0f, 10000.0f);
-	CameraTransform = glm::lookAt(glm::vec3(0.0f, 10.0f, 1.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Application::Update() {
@@ -77,19 +81,21 @@ void Application::Update() {
 
 	// AI's turn
 	if (!_PlayerTurn) {
-		if (_Board->GameOver()) {
-			std::cout << "GG";
-			exit(0);
-		}
-		_MMAI.performMove(_Board);
-		
-		if (_Board->GameOver()) {
-			std::cout << "GG";
-			exit(0);
+		// First check to see if game is over
+		CheckGameOver();
+
+		// AI's move. Requires one more check, for game loop
+		// If it game overs one line up, it will call this without
+		// this check on new game
+		if (!_PlayerTurn) {
+			_MMAI.performMove(_Board);
 		}
 
-		// it is now the player's turn
+		// It is now the player's turn
 		_PlayerTurn = true;
+
+		// Check to see if game is over
+		CheckGameOver();
 	}
 
 	float deltaTime = updateTimer->getElapsedTimeSeconds();
@@ -154,12 +160,39 @@ void Application::Draw() {
 
 	StaticGeometry->Unbind();
 
-	renderText();
+	RenderText();
 
 	glutSwapBuffers();
 }
 
-void Application::renderText()
+/*
+*  Trys to do a move at the given position. Returns true if
+*  the move was successful. False otherwise.
+*/
+bool Application::TryMove(int x, int y) {
+	if (_Board->GetValue(x, y) == TTTVal::NIL) {
+		_Board->SetValue(x, y, _Player);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+void Application::CheckGameOver() {
+	if (_Board->GameOver()) {
+		TTTVal winner = _Board->CheckWinner();
+
+		if (winner == TTTVal::TIE) {
+			std::cout << "Tie Game!\n";
+		}
+		else {
+			std::cout << ((winner == _Player) ? "You Win!\n" : "You Lose. :(\n");
+		}
+	}
+}
+
+void Application::RenderText()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	/* Render Text for mode and values */
@@ -194,13 +227,13 @@ void Application::keyboardDown(unsigned char key, int mouseX, int mouseY) {
 	{
 	case 27: // the escape key
 	case 'q': // the 'q' key
-		exit(1);
+		glutLeaveMainLoop();
 		break;
 	case '1':
 		WireframeOn = !WireframeOn;
 		break;
 	case '2':
-		CursorOn = !CursorOn;
+		_MMAI.toggleAlphaBeta();
 		break;
 	case '3':
 		break;
@@ -210,16 +243,16 @@ void Application::keyboardDown(unsigned char key, int mouseX, int mouseY) {
 		TextDisplayOn = !TextDisplayOn;
 		break;
 	case 'w':
-		KeyWDown = true;
 		break;
 	case 'a':
-		KeyADown = true;
 		break;
 	case 's':
-		KeySDown = true;
 		break;
 	case 'd':
-		KeyDDown = true;
+		break;
+	case 'r':
+		delete _Board;
+		InitializeTicTacToe();
 		break;
 	}
 }
@@ -234,18 +267,14 @@ void Application::keyboardUp(unsigned char key, int mouseX, int mouseY) {
 		exit(1);
 		break;
 	case '2':
-		std::cout << _PlayerTurn << std::endl;
+		break;
 	case 'w':
-		KeyWDown = false;
 		break;
 	case 'a':
-		KeyADown = false;
 		break;
 	case 's':
-		KeySDown = false;
 		break;
 	case 'd':
-		KeyDDown = false;
 		break;
 	}
 }
@@ -254,86 +283,51 @@ void Application::mouseClicked(int button, int state, int x, int y) {
 	if (state == GLUT_DOWN) {
 		switch (button) {
 		case GLUT_LEFT_BUTTON:
+			// Checks for where the player clicked
 			if (_PlayerTurn) {
 				// left column
 				if (xpos > 150 && xpos < 320) {
 					// top row
 					if (ypos > 72 && ypos < 215) {
-						if (_Board->GetValue(0, 0) == TTTVal::NIL) {
-							_Board->SetValue(0, 0, _Player);
-							// it is now the AI's turn
-							_PlayerTurn = false;
-						}
+						_PlayerTurn = !TryMove(0, 0);
 					}
 					// middle row
 					else if (ypos > 215 && ypos < 375) {
-						if (_Board->GetValue(0, 1) == TTTVal::NIL) {
-							_Board->SetValue(0, 1, _Player);
-							// it is now the AI's turn
-							_PlayerTurn = false;
-						}
+						_PlayerTurn = !TryMove(0, 1);
 					}
 					// bottom row
 					else if (ypos > 375 && ypos < 550) {
-						if (_Board->GetValue(0, 2) == TTTVal::NIL) {
-							_Board->SetValue(0, 2, _Player);
-							// it is now the AI's turn
-							_PlayerTurn = false;
-						}
+						_PlayerTurn = !TryMove(0, 2);
 					}
 				}
 				// middle column
 				else if (xpos > 320 && xpos < 480) {
 					// top row
 					if (ypos > 72 && ypos < 215) {
-						if (_Board->GetValue(1, 0) == TTTVal::NIL) {
-							_Board->SetValue(1, 0, _Player);
-							// it is now the AI's turn
-							_PlayerTurn = false;
-						}
+						_PlayerTurn = !TryMove(1, 0);
 					}
 					// middle row
 					else if (ypos > 215 && ypos < 375) {
-						if (_Board->GetValue(1, 1) == TTTVal::NIL) {
-							_Board->SetValue(1, 1, _Player);
-							// it is now the AI's turn
-							_PlayerTurn = false;
-						}
+						_PlayerTurn = !TryMove(1, 1);
 					}
 					// bottom row
 					else if (ypos > 375 && ypos < 550) {
-						if (_Board->GetValue(1, 2) == TTTVal::NIL) {
-							_Board->SetValue(1, 2, _Player);
-							// it is now the AI's turn
-							_PlayerTurn = false;
-						}
+						_PlayerTurn = !TryMove(1, 2);
 					}
 				}
 				// right column
 				else if (xpos > 480 && xpos < 630) {
 					// top row
 					if (ypos > 72 && ypos < 215) {
-						if (_Board->GetValue(2, 0) == TTTVal::NIL) {
-							_Board->SetValue(2, 0, _Player);
-							// it is now the AI's turn
-							_PlayerTurn = false;
-						}
+						_PlayerTurn = !TryMove(2, 0);
 					}
 					// middle row
 					else if (ypos > 215 && ypos < 375) {
-						if (_Board->GetValue(2, 1) == TTTVal::NIL) {
-							_Board->SetValue(2, 1, _Player);
-							// it is now the AI's turn
-							_PlayerTurn = false;
-						}
+						_PlayerTurn = !TryMove(2, 1);
 					}
 					// bottom row
 					else if (ypos > 375 && ypos < 550) {
-						if (_Board->GetValue(2, 2) == TTTVal::NIL) {
-							_Board->SetValue(2, 2, _Player);
-							// it is now the AI's turn
-							_PlayerTurn = false;
-						}
+						_PlayerTurn = !TryMove(2, 2);
 					}
 				}
 			}

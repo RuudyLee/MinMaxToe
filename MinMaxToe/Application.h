@@ -31,9 +31,12 @@ public:
 	~Application();
 
 	void Initialize();
+	void InitializeTicTacToe();
 	void Update();
 	void Draw();
-	void renderText();
+	void CheckGameOver();
+	bool TryMove(int x, int y);
+	void RenderText();
 
 	/* input callback functions */
 	void keyboardDown(unsigned char key, int mouseX, int mouseY);
@@ -44,7 +47,6 @@ public:
 	/* Data Members */
 	std::unique_ptr<Timer> updateTimer;
 	float TotalGameTime = 0.0f;
-	float InterpolationParam = 0.0f;
 
 	std::shared_ptr<ShaderProgram> StaticGeometry;
 
@@ -68,21 +70,13 @@ public:
 
 	// states
 	bool WireframeOn = false;
-	bool CursorOn = false;
 	bool TextDisplayOn = false;
 
 	Text TextDisplay;
-	bool oneTime = false;
-	/* For FPS Control */
-	bool KeyWDown = false;
-	bool KeyADown = false;
-	bool KeySDown = false;
-	bool KeyDDown = false;
+
+	// Mouse Position
 	float xpos = 0.0f;
 	float ypos = 0.0f;
-	glm::vec3 position = glm::vec3(0, 2, -5);
-	float horizontalAngle = 0.0f;
-	float verticalAngle = 0.0f;
 
 private:
 };

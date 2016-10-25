@@ -1,3 +1,5 @@
+/* Create by: Rudy Lee */
+
 #include "MinMaxAI.h"
 #include <vector>
 #include <algorithm>
@@ -14,7 +16,7 @@ MinMaxAI::~MinMaxAI() {
 }
 
 /*
-* Initializes AI
+* Initializes AI to a given TTTVal
 */
 void MinMaxAI::init(TTTVal aiPlayer) {
 	_aiPlayer = aiPlayer;
@@ -27,20 +29,31 @@ void MinMaxAI::init(TTTVal aiPlayer) {
 }
 
 /*
-* Plays the best move to the given board using the MinMax algorithm
+* Plays the best move to the given board using the MinMax 
+* or Alpha-Beta algorithm, depending on the boolean 'enableAlphaBeta'
 */
 void MinMaxAI::performMove(Board *board) {
 	evaluations = 0;
 	MoveNode bestMove = getBestMove(*board, -99999, 99999, _aiPlayer);
+	std::cout << evaluations << std::endl; // for testing
 	board->SetValue(bestMove.x, bestMove.y, _aiPlayer);
 	
 }
 
 /*
-* My Implementation of the MinMax Algorithm with alpha-beta pruning
+* Toggles the switch for Alpha-Beta Pruning
+*/
+void MinMaxAI::toggleAlphaBeta() {
+	enableAlphaBeta = !enableAlphaBeta;
+}
+
+/*
+* My Implementation of the MinMax & Alpha-Beta Pruning Search Algorithms
 */ 
 MoveNode MinMaxAI::getBestMove(Board board, int alpha, int beta, TTTVal player) {
+	// Count the number of evaluations (for testing)
 	evaluations++;
+
 	// Terminal nodes
 	TTTVal winner = board.CheckWinner();
 	if (winner == _aiPlayer) {
@@ -53,12 +66,12 @@ MoveNode MinMaxAI::getBestMove(Board board, int alpha, int beta, TTTVal player) 
 		return MoveNode(0);
 	}
 
+	// Recursively goes through each node and its children
 	std::vector<MoveNode> children;
 
-	// MinMax Recursion
 	for (int y = 0; y < 3; y++) {
 		for (int x = 0; x < 3; x++) {
-			if (board.GetValue(x, y) == TTTVal::NIL) {
+			if (board.GetValue(x, y) == TTTVal::NIL) { // validate move
 				MoveNode move;
 				move.setMove(x, y);
 				board.SetValue(x, y, player);
@@ -67,7 +80,7 @@ MoveNode MinMaxAI::getBestMove(Board board, int alpha, int beta, TTTVal player) 
 					move.score = getBestMove(board, alpha, beta, _humanPlayer).score;
 					alpha = std::max(alpha, move.score);
 					// check for beta cut-off
-					if (beta <= alpha) {
+					if (enableAlphaBeta && beta <= alpha) {
 						return MoveNode(beta);
 					}
 				}
@@ -75,20 +88,21 @@ MoveNode MinMaxAI::getBestMove(Board board, int alpha, int beta, TTTVal player) 
 					move.score = getBestMove(board, alpha, beta, _aiPlayer).score;
 					beta = std::min(beta, move.score);
 					// check for alpha cut-off
-					if (beta <= alpha) {
+					if (enableAlphaBeta && beta <= alpha) {
 						return MoveNode(alpha);
 					}
 				}
 				children.push_back(move);
+
+				// evaluation of this branch complete, return board state to normal
 				board.SetValue(x, y, TTTVal::NIL);
 			}
 		}
 	}
 
-	// Determine best move
+	// Determine the move with the best score (max/min)
 	MoveNode bestMove;
-	if (player == _aiPlayer) {
-		// wants highest score
+	if (player == _aiPlayer) { // Maximizing player
 		bestMove.score = -99999;
 		for (MoveNode move : children) {
 			if (move.score > bestMove.score) {
@@ -96,9 +110,7 @@ MoveNode MinMaxAI::getBestMove(Board board, int alpha, int beta, TTTVal player) 
 			}
 		}
 	}
-	else
-	{
-		// wants lowest score
+	else { // Minimizing Player
 		bestMove.score = 99999;
 		for (MoveNode move : children) {
 			if (move.score < bestMove.score) {
