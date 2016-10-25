@@ -79,6 +79,9 @@ TTTVal Board::CheckWinner() {
 	return TTTVal::NIL;
 }
 
+/*
+*  Returns if the board state's end condition has been reached
+*/
 bool Board::GameOver() {
 	return CheckWinner() != TTTVal::NIL;
 }

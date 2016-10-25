@@ -1,3 +1,5 @@
+/* Created by: Rudy Lee */
+
 #include "Application.h"
 #include "Utilities.h"
 
@@ -9,9 +11,17 @@ Application::Application() {
 }
 
 Application::~Application() {
+	// smart pointers will be handled by the compiler
 	StaticGeometry->Unload();
+	delete BoardEntity;
+	delete XEntity;
+	delete OEntity;
+	delete _Board;
 }
 
+/*
+*  Initializes OpenGL rendering tasks, and misc. services
+*/
 void Application::Initialize() {
 	updateTimer = std::unique_ptr<Timer>(new Timer());
 
@@ -42,12 +52,16 @@ void Application::Initialize() {
 	// Initialize a game of tic-tac-toe
 	InitializeTicTacToe();
 
+	// Prepare Camera Transforms
 	CameraProjection = glm::perspective(60.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 1.0f, 10000.0f);
 	CameraTransform = glm::lookAt(glm::vec3(0.0f, 10.0f, 1.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
+/*
+*  Initializes all the variables for tic-tac-toe
+*/
 void Application::InitializeTicTacToe() {
 	_Board = new Board();
 	_Board->Init();
@@ -75,9 +89,14 @@ void Application::InitializeTicTacToe() {
 	}
 }
 
+/*
+*  Game update loop
+*/
 void Application::Update() {
 	// update our clock so we have the delta time since the last update
 	updateTimer->tick();
+	float deltaTime = updateTimer->getElapsedTimeSeconds();
+	TotalGameTime += deltaTime;
 
 	// AI's turn
 	if (!_PlayerTurn) {
@@ -94,14 +113,14 @@ void Application::Update() {
 		// It is now the player's turn
 		_PlayerTurn = true;
 
-		// Check to see if game is over
+		// Check to see if game is over once more
 		CheckGameOver();
 	}
-
-	float deltaTime = updateTimer->getElapsedTimeSeconds();
-	TotalGameTime += deltaTime;
 }
 
+/*
+*  Game display loop
+*/
 void Application::Draw() {
 	/* Black background */
 	glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
@@ -110,7 +129,7 @@ void Application::Draw() {
 	/* Render the scene */
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	/* States */
+	// States
 	if (WireframeOn) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -118,6 +137,7 @@ void Application::Draw() {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
+	// Set the shader program values
 	StaticGeometry->Bind();
 	StaticGeometry->SendUniformMat4("uView", &CameraTransform[0][0], false);
 	StaticGeometry->SendUniformMat4("uProj", &CameraProjection[0][0], false);
@@ -160,6 +180,7 @@ void Application::Draw() {
 
 	StaticGeometry->Unbind();
 
+	// Render text
 	RenderText();
 
 	glutSwapBuffers();
@@ -179,24 +200,35 @@ bool Application::TryMove(int x, int y) {
 	}
 }
 
+/*
+*  Checks board state for end condition. Sets _GameOver flag
+*  to true if end condition is reached.
+*/
 void Application::CheckGameOver() {
 	if (_Board->GameOver()) {
-		TTTVal winner = _Board->CheckWinner();
-
-		if (winner == TTTVal::TIE) {
-			std::cout << "Tie Game!\n";
-		}
-		else {
-			std::cout << ((winner == _Player) ? "You Win!\n" : "You Lose. :(\n");
-		}
+		_PlayerTurn = true;
+		_GameOver = true;
 	}
 }
 
+/*
+*  Calls to the text display program
+*/
 void Application::RenderText()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	/* Render Text for mode and values */
-	if (TextDisplayOn) {
+	if (_GameOver) {
+		TTTVal winner = _Board->CheckWinner();
+		std::string display;
+
+		if (winner == TTTVal::TIE) {
+			display = "Tie Game!";
+		}
+		else {
+			display = (winner == _Player) ? "You Win!" : "You Lose. :(";
+		}
+
 		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		float sx = 2.0f / glutGet(GLUT_WINDOW_WIDTH);
 		float sy = 2.0f / glutGet(GLUT_WINDOW_HEIGHT);
@@ -210,18 +242,18 @@ void Application::RenderText()
 		FT_Set_Pixel_Sizes(TextDisplay.face, 0, 24);
 		TextDisplay.program.SendUniform("uColor", Color);
 
-		if (WireframeOn) {
-			TextDisplay.Render("1: Wireframe mode is ON", -1 + 8 * sx, 1 - 50 * sy, sx, sy);
-		}
-		else {
-			TextDisplay.Render("1: Wireframe mode is OFF", -1 + 8 * sx, 1 - 50 * sy, sx, sy);
-		}
+		TextDisplay.Render(display.c_str(), -1 + 8 * sx, 1 - 50 * sy, sx, sy);
+		TextDisplay.Render("Press 'R' to restart", -1 + 8 * sx, 1 - 75 * sy, sx, sy);
+
 
 		glDisable(GL_BLEND);
 		TextDisplay.program.Unbind();
 	}
 }
 
+/*
+*  Key down callback
+*/
 void Application::keyboardDown(unsigned char key, int mouseX, int mouseY) {
 	switch (key)
 	{
@@ -240,7 +272,6 @@ void Application::keyboardDown(unsigned char key, int mouseX, int mouseY) {
 	case '4':
 		break;
 	case '6':
-		TextDisplayOn = !TextDisplayOn;
 		break;
 	case 'w':
 		break;
@@ -250,13 +281,17 @@ void Application::keyboardDown(unsigned char key, int mouseX, int mouseY) {
 		break;
 	case 'd':
 		break;
-	case 'r':
+	case 'r': // Reset the game
+		_GameOver = false;
 		delete _Board;
 		InitializeTicTacToe();
 		break;
 	}
 }
 
+/*
+*  Key up callback
+*/
 void Application::keyboardUp(unsigned char key, int mouseX, int mouseY) {
 	switch (key)
 	{
@@ -279,6 +314,9 @@ void Application::keyboardUp(unsigned char key, int mouseX, int mouseY) {
 	}
 }
 
+/*
+*  Mouse click callback
+*/
 void Application::mouseClicked(int button, int state, int x, int y) {
 	if (state == GLUT_DOWN) {
 		switch (button) {
@@ -346,13 +384,8 @@ void Application::mouseClicked(int button, int state, int x, int y) {
 }
 
 /*
- * mouseMoved(x,y)
- * - this occurs only when the mouse is pressed down
- *   and the mouse has moved.  you are given the x,y locations
- *   in window coordinates (from the top left corner) and thus
- *   must be converted to screen coordinates using the screen to window pixels ratio
- *   and the y must be flipped to make the bottom left corner the origin.
- */
+*  Mouse movement callback
+*/
 void Application::mouseMoved(int x, int y) {
 	xpos = (float)x;
 	ypos = (float)y;

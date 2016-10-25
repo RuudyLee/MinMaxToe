@@ -1,3 +1,5 @@
+/* Created by: Rudy Lee */
+
 #pragma once
 #include <windows.h>
 #include <memory>
@@ -48,17 +50,25 @@ public:
 	std::unique_ptr<Timer> updateTimer;
 	float TotalGameTime = 0.0f;
 
+	// Shader Programs
 	std::shared_ptr<ShaderProgram> StaticGeometry;
 
+	// Meshes
 	std::shared_ptr<Mesh> BoardMesh;
 	std::shared_ptr<Mesh> XMesh;
 	std::shared_ptr<Mesh> OMesh;
+
+	// Textures
 	std::shared_ptr<Texture> BoardTexture;
 	std::shared_ptr<Texture> RedTexture;
 	std::shared_ptr<Texture> BlueTexture;
+
+	// Entities
 	Entity *BoardEntity;
 	Entity *XEntity;
 	Entity *OEntity;
+	
+	// Camera Transforms
 	glm::mat4 CameraTransform;
 	glm::mat4 CameraProjection;
 
@@ -67,11 +77,13 @@ public:
 	MinMaxAI _MMAI;
 	TTTVal _Player;
 	bool _PlayerTurn;
+	bool _GameOver = false;
 
 	// states
 	bool WireframeOn = false;
 	bool TextDisplayOn = false;
 
+	// Text Program
 	Text TextDisplay;
 
 	// Mouse Position
