@@ -1,5 +1,4 @@
-#version 420
-
+#version 330
 uniform mat4 CameraPosition;
 
 // Light

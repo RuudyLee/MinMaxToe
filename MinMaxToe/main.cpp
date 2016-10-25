@@ -71,7 +71,7 @@ void MouseMotionCallbackFunction(int x, int y) {
 int main(int argc, char **argv) {
 	/* initialize the window and OpenGL properly */
 	glutInit(&argc, argv);
-	glutInitContextVersion(4, 2);
+	glutInitContextVersion(3, 3);
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutCreateWindow("OpenGL Framework");
